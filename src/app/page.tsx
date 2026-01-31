@@ -26,6 +26,7 @@ export default function Home() {
   // Outputs
   const [logOutput, setLogOutput] = useState<string>('');
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [testCasesList, setTestCasesList] = useState<TestCase[]>([]);
 
   // --- Logic Functions ---
 
@@ -88,6 +89,8 @@ export default function Home() {
 
     // 3. Assign sequential IDs to each test case
     const testCasesWithId: TestCase[] = testCases.map((tc, idx) => ({ id: idx + 1, ...tc }));
+    // store for UI
+    setTestCasesList(testCasesWithId);
     
     // 4. Format Output String
     const now = new Date();
@@ -213,6 +216,30 @@ export default function Home() {
         <div className="log-container">
           <h3>Execute Log:</h3>
           <pre className="log-pre">{logOutput}</pre>
+
+          {testCasesList.length > 0 && (
+            <table className="tc-table">
+              <thead>
+                <tr>
+                  <th style={{textAlign: 'left', paddingRight: '12px'}}>ID</th>
+                  <th style={{textAlign: 'left', paddingRight: '12px'}}>W</th>
+                  <th style={{textAlign: 'left', paddingRight: '12px'}}>H</th>
+                  <th style={{textAlign: 'left', paddingRight: '12px'}}>Area</th>
+                </tr>
+              </thead>
+              <tbody>
+                {testCasesList.map(tc => (
+                  <tr key={tc.id}>
+                    <td>{tc.id}</td>
+                    <td>{tc.w}</td>
+                    <td>{tc.h}</td>
+                    <td>{((tc.w * tc.h) / 2).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
           <div className="summary">Total Cases: {totalCount}</div>
         </div>
       )}
