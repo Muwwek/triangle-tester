@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 type TestMode = 'Bva' | 'Robustness' | 'Worse case' | 'Worse case Robustness';
 
 interface TestCase {
+  id: number;
   w: number;
   h: number;
 }
@@ -58,7 +59,7 @@ export default function Home() {
     const wData = getTestPoints(Number(wMin), Number(wMax), mode);
     const hData = getTestPoints(Number(hMin), Number(hMax), mode);
     
-    let testCases: TestCase[] = [];
+    let testCases: { w: number; h: number; }[] = [];
     const wNom = wData.nominal;
     const hNom = hData.nominal;
 
@@ -85,7 +86,10 @@ export default function Home() {
       });
     }
 
-    // 3. Format Output String
+    // 3. Assign sequential IDs to each test case
+    const testCasesWithId: TestCase[] = testCases.map((tc, idx) => ({ id: idx + 1, ...tc }));
+    
+    // 4. Format Output String
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
     const timeStr = now.toLocaleTimeString('en-GB');
@@ -96,29 +100,28 @@ export default function Home() {
     buffer += `-`.repeat(50) + `\n`;
     buffer += `Loop :\n`;
     // Table Header
-    buffer += `${'No.'.padEnd(6)} ${'W'.padEnd(10)} ${'H'.padEnd(10)} ${'Area'.padEnd(15)}\n`; 
+    buffer += `${'ID'.padEnd(6)} ${'W'.padEnd(10)} ${'H'.padEnd(10)} ${'Area'.padEnd(15)}\n`; 
 
-    let count = 0;
-    testCases.forEach((tc) => {
-      count++;
+    // Use assigned IDs and compute area
+    testCasesWithId.forEach((tc) => {
       const area = (tc.w * tc.h) / 2;
       
-      const noStr = count.toString().padEnd(6);
+      const idStr = tc.id.toString().padEnd(6);
       const wStr = tc.w.toString().padEnd(10);
       const hStr = tc.h.toString().padEnd(10);
       const areaStr = area.toFixed(2).padEnd(15);
       
-      buffer += `${noStr} ${wStr} ${hStr} ${areaStr}\n`;
+      buffer += `${idStr} ${wStr} ${hStr} ${areaStr}\n`;
     });
 
     const finishTime = new Date().toLocaleTimeString('en-GB');
     buffer += `-`.repeat(50) + `\n`;
     buffer += `DateTime finish : ${finishTime}\n`;
-    buffer += `Total number of test case :> ${count}`;
+    buffer += `Total number of test case :> ${testCasesWithId.length}`; 
 
     // Update State
     setLogOutput(buffer);
-    setTotalCount(count);
+    setTotalCount(testCasesWithId.length);
   };
 
   const downloadFile = () => {
