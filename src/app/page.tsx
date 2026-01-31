@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 type TestMode = 'Bva' | 'Robustness' | 'Worse case' | 'Worse case Robustness';
 
 interface TestCase {
-  id: number;
+  id: string;
   w: number;
   h: number;
 }
@@ -87,8 +87,15 @@ export default function Home() {
       });
     }
 
-    // 3. Assign sequential IDs to each test case
-    const testCasesWithId: TestCase[] = testCases.map((tc, idx) => ({ id: idx + 1, ...tc }));
+    // 3. Assign sequential IDs to each test case (mode-based prefix + zero-padded index)
+    const prefixMap: Record<TestMode, string> = {
+      'Bva': 'BVA',
+      'Robustness': 'ROB',
+      'Worse case': 'WC',
+      'Worse case Robustness': 'WCROB'
+    };
+    const prefix = prefixMap[mode] || 'TC';
+    const testCasesWithId: TestCase[] = testCases.map((tc, idx) => ({ id: `${prefix}-${String(idx + 1).padStart(2, '0')}`, ...tc }));
     // store for UI
     setTestCasesList(testCasesWithId);
     
@@ -109,7 +116,7 @@ export default function Home() {
     testCasesWithId.forEach((tc) => {
       const area = (tc.w * tc.h) / 2;
       
-      const idStr = tc.id.toString().padEnd(6);
+      const idStr = tc.id.padEnd(8);
       const wStr = tc.w.toString().padEnd(10);
       const hStr = tc.h.toString().padEnd(10);
       const areaStr = area.toFixed(2).padEnd(15);
